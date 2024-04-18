@@ -4,6 +4,7 @@ import './App.css';
 import PatientsScreen from './components/PatientsScreen';
 import ChatScreen from './components/ChatScreen';
 import MoodAnalysisScreen from './components/MoodAnalysisScreen';
+import PatientDetails from './components/PatientDetails';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path="/" element={<PatientsScreen/>} />
           <Route path="/chat" element={<ChatScreen/>} />
           <Route path="/mood-analysis" element={<MoodAnalysisScreen/>} />
+          <Route path="/patients/:name" element={<PatientDetails/>} />
+          <Route path="/patients/:name/chat" element={<ChatScreen/>} />
           </Routes>
       </div>
     </Router>

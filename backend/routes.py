@@ -128,6 +128,14 @@ def get_patients():
     patients = list(db.patients.find({}, {'_id': 0}))
     return jsonify(patients)
 
+@app.route('/api/patients/<name>', methods=['GET'])
+def get_patient(name):
+    patient = db.patients.find_one({'name': name}, {'_id': 0})  # Find patient by ID in MongoDB
+    if patient:
+        return jsonify(patient)
+    else:
+        return jsonify({'error': 'Patient not found'}), 404
+
 @app.route('/api/mood_history', methods=['GET'])
 def get_mood_history():
     user = request.args.get('user')

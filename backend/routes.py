@@ -247,6 +247,9 @@ def spotify_callback():
     sp.auth_manager.get_access_token(request.args.get('code'))
     return redirect('/api/spotify/recent-songs')
 
+@app.route('/api/spotify/playlists', methods=['GET'])
+def get_playlists():
+    return jsonify(db.spotify.find_one({}))
 
 if __name__ == '__main__':
     app.run(debug=True)

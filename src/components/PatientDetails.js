@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faSmile } from '@fortawesome/free-solid-svg-icons';
 
 function PatientDetails() {
   const { name } = useParams();
@@ -30,6 +30,11 @@ function PatientDetails() {
     navigate(`/patients/${name}/chat`);
   };
 
+  const handleMoodClick = () => {
+    // Navigate to the mood analysis screen
+    navigate(`/patients/${name}/mood-analysis`);
+  }
+
   return (
     <div className="patient-details">
       <h2>{patient.name}</h2>
@@ -37,6 +42,9 @@ function PatientDetails() {
       <p>Phone: {patient.phone}</p>
       {/* Chat icon */}
       <FontAwesomeIcon icon={faComment} className="chat-icon" onClick={handleChatClick} />
+      <br></br>
+      <br></br>
+      <FontAwesomeIcon icon={faSmile} className="mood-icon" onClick={handleMoodClick} />
     </div>
   );
 }

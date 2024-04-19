@@ -29,11 +29,9 @@ CORS(app)
 app.secret_key = 'your_secret_key'
 
 # Spotify API credentials
-CLIENT_ID = 'd4de6894fc7f4fdc86716e8f84ad19df'
-CLIENT_SECRET = 'e877a071b150405a828758d796ab1ada'
-# CLIENT_ID = '403ad84743764e23a37a940624c42395'
-# CLIENT_SECRET = '202803b9bbd3464c806fdf2395aa7c0c'
-REDIRECT_URI = 'http://localhost:5000/callback'  # Update with your redirect URI
+CLIENT_ID = '2a5e5d4a0d2b4567ae2a841ac2359df6';
+CLIENT_SECRET = 'cf72c10fff1d41e780e844759f3318d1';
+REDIRECT_URI = 'http://localhost:3000/spotify/callback'  # Update with your redirect URI
 
 # Define Spotify OAuth scope
 SCOPE = 'user-read-recently-played'
@@ -160,15 +158,6 @@ def get_predictions():
     
     return jsonify(predictions)
 
-@app.route('/callback')
-def callback():
-    global sp
-    code = request.args.get('code')
-    token_info = sp_oauth.get_access_token(code)
-    access_token = token_info['access_token']
-    sp = Spotify(auth=access_token, requests_timeout=50)
-    return redirect("/api/get_spotify")
-
 @app.route('/api/get_spotify', methods=['GET'])
 def get_spotify_info():
     results = sp.current_user_recently_played()
@@ -216,12 +205,48 @@ def get_spotify_info():
     print(mood_message)
     return jsonify({'mood_message': mood_message})
 
+@app.route('/api/spotify/recent-songs', methods=['GET'])
+def get_recent_songs():
+    try:
+        # Check if user is authenticated
+        if not sp.auth_manager.get_access_token():
+            # If not authenticated, redirect to Spotify for authorization
+            return redirect('/api/spotify/authorize')
+
+        # Make a request to the Spotify API to get the user's recently played tracks
+        results = sp.current_user_recently_played(limit=25)
+        
+        # Extract relevant information from the response and return it
+        tracks = results['items']
+        formatted_tracks = []
+        for track in tracks:
+            track_info = {
+                "track": {
+                    "name": track['track']['name'],
+                    "artists": [artist['name'] for artist in track['track']['artists']],
+                    "album": {
+                        "images": [{"url": track['track']['album']['images'][0]['url']}]
+                    }
+                }
+            }
+            formatted_tracks.append(track_info)
+        
+        return jsonify(formatted_tracks), 200
+    except Exception as e:
+        print("Error fetching recent songs:", e)
+        return jsonify({'error': 'Failed to fetch recent songs from Spotify'}), 500
+
 @app.route('/api/spotify/authorize', methods=['GET'])
 def authorize_spotify():
-    auth_url = sp_oauth.get_authorize_url()
-    print(auth_url)
-    sp = Spotify(auth=sp_oauth.get_access_token())
-    return jsonify({'auth_url': auth_url})
+    # Redirect the user to Spotify authorization page
+    return redirect(sp.auth_manager.get_authorize_url())
+
+@app.route('/spotify/callback')
+def spotify_callback():
+    # Handle Spotify authorization callback
+    sp.auth_manager.get_access_token(request.args.get('code'))
+    return redirect('/api/spotify/recent-songs')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -12,7 +12,7 @@ function ChatScreen() {
   useEffect(() => {
     const fetchChat = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/chat_history?user=${name}`);
+        const response = await axios.get('http://localhost:5000/api/chat_history?user=Alice');
         setChat(response.data[0]?.chat || []); // Access chat array from response.data[0]
       } catch (error) {
         console.error('Error fetching chat:', error);
@@ -26,7 +26,7 @@ function ChatScreen() {
 
     // Prepare the message object
     const newMessage = {
-      sender: 'Therapist',
+      sender: 'User',
       user: name,
       message: message,
       date: new Date().toISOString(),
@@ -40,7 +40,7 @@ function ChatScreen() {
 
     // Save the message to the backend (assuming you have a route for saving messages)
     try {
-      await axios.post(`http://localhost:5000/api/chat_history?user=${name}`, newMessage);
+      await axios.post('http://localhost:5000/api/chat_history?user=Alice', newMessage);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -50,7 +50,7 @@ function ChatScreen() {
     <div className="chat-screen">
       <div className="chat-box">
         {chat.map((message, index) => (
-          <div key={index} className={`message ${message.sender === 'Therapist' ? 'sent' : 'received'}`}>
+          <div key={index} className={`message ${message.sender === 'Therapist' ? 'received' : 'sent'}`}>
             <p>{message.message}</p>
             <span className="time">{new Date(message.date).toLocaleTimeString()}</span>
           </div>
